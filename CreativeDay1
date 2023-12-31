@@ -1,0 +1,122 @@
+/*
+ * 30 Days - Lost in Space
+ * Day 5 - Creative Day 
+ * Veridicto
+ */
+
+#include "Arduino.h"
+
+// Pin numbers for the LEDs
+const byte CABIN_LIGHTS_PIN = 10;
+const byte STORAGE_LIGHTS_PIN = 11;
+const byte COCKPIT_LIGHTS_PIN = 12;
+
+// Pin numbers for the switches
+const byte CABIN_LIGHTS_SWITCH_PIN = 2;
+const byte STORAGE_LIGHTS_SWITCH_PIN = 3;
+const byte COCKPIT_LIGHTS_SWITCH_PIN = 4;
+
+// Arrays to store LED and switch pin numbers
+const byte LED_PINS[] = {CABIN_LIGHTS_PIN, STORAGE_LIGHTS_PIN, COCKPIT_LIGHTS_PIN};
+const byte SWITCH_PINS[] = {CABIN_LIGHTS_SWITCH_PIN, STORAGE_LIGHTS_SWITCH_PIN, COCKPIT_LIGHTS_SWITCH_PIN};
+const byte NUM_LEDS = 3;
+
+void setup() {
+  // Initialize LED pins as outputs
+  for (int i = 0; i < NUM_LEDS; i++) {
+    pinMode(LED_PINS[i], OUTPUT);
+  }
+
+  // Initialize switch pins as inputs
+  pinMode(CABIN_LIGHTS_SWITCH_PIN, INPUT);
+  pinMode(STORAGE_LIGHTS_SWITCH_PIN, INPUT);
+  pinMode(COCKPIT_LIGHTS_SWITCH_PIN, INPUT);
+}
+
+void loop() {
+  // Array to hold the status of each switch
+  int status[NUM_LEDS];
+  int count = 0;
+
+  // Read the state of each switch and count how many are HIGH
+  for (int i = 0; i < NUM_LEDS; i++) {
+    status[i] = digitalRead(SWITCH_PINS[i]);
+    if (status[i] == HIGH) {
+      count++;
+    }
+  }
+
+  // Logic for controlling LEDs
+  if (count > 1) {
+    // If more than one switch is HIGH, flash all LEDs
+    for (int i = 0; i < NUM_LEDS; i++) {
+      digitalWrite(LED_PINS[i], HIGH);
+    }
+    delay(100); // Flash duration
+
+    // Then turn off all LEDs
+    for (int i = 0; i < NUM_LEDS; i++) {
+      digitalWrite(LED_PINS[i], LOW);
+    }
+    delay(100);
+
+    // If more than one switch is HIGH, flash all LEDs
+    for (int i = 0; i < NUM_LEDS; i++) {
+      digitalWrite(LED_PINS[i], HIGH);
+    }
+    delay(250); // Flash duration
+
+    // Then turn off all LEDs
+    for (int i = 0; i < NUM_LEDS; i++) {
+      digitalWrite(LED_PINS[i], LOW);
+    }
+    delay(100);
+
+    // If more than one switch is HIGH, flash all LEDs
+    for (int i = 0; i < NUM_LEDS; i++) {
+      digitalWrite(LED_PINS[i], HIGH);
+    }
+    delay(100); // Flash duration
+
+    // Then turn off all LEDs
+    for (int i = 0; i < NUM_LEDS; i++) {
+      digitalWrite(LED_PINS[i], LOW);
+    }
+
+
+    // Wait for change in switch states
+    waitForChange();
+  } else if (count == 1) {
+    // If only one switch is HIGH, turn on the corresponding LED
+    for (int i = 0; i < NUM_LEDS; i++) {
+      digitalWrite(LED_PINS[i], status[i]);
+    }
+  } else {
+    // If no switch is HIGH, turn off all LEDs
+    for (int i = 0; i < NUM_LEDS; i++) {
+      digitalWrite(LED_PINS[i], LOW);
+    }
+  }
+}
+
+void waitForChange() {
+  int currentStatus[NUM_LEDS];
+  for (int i = 0; i < NUM_LEDS; i++) {
+    currentStatus[i] = digitalRead(SWITCH_PINS[i]);
+  }
+
+  while (true) {
+    bool statusChanged = false;
+    for (int i = 0; i < NUM_LEDS; i++) {
+      int newStatus = digitalRead(SWITCH_PINS[i]);
+      if (newStatus != currentStatus[i]) {
+        statusChanged = true;
+        break;
+      }
+    }
+    if (statusChanged) {
+      break;
+    }
+    delay(50); // Short delay to prevent excessive CPU usage
+  }
+}
